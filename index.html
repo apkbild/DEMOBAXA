@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📚 Учебный документ — Подготовка к экзамену</title>
+  <style>
+    :root {
+      --bg: #ffffff; --text: #1a1a1a; --primary: #3b82f6; --primary-hover: #2563eb;
+      --border: #e5e7eb; --hover: #f3f4f6; --active: #dbeafe; --sidebar-bg: #f9fafb;
+      --img-bg: #f8fafc;
+    }
+    [data-theme="dark"] {
+      --bg: #0f172a; --text: #f1f5f9; --primary: #60a5fa; --primary-hover: #3b82f6;
+      --border: #334155; --hover: #1e293b; --active: #1e3a5f; --sidebar-bg: #1e293b;
+      --img-bg: #1e293b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.5;
+      transition: background 0.3s, color 0.3s;
+    }
+    header {
+      position: sticky; top: 0; background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between;
+      z-index: 100; gap: 1rem; flex-wrap: wrap;
+    }
+    .logo { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .nav-btn {
+      padding: 0.5rem 1rem; background: var(--primary); color: white; border: none;
+      border-radius: 6px; cursor: pointer; font-weight: 500; transition: background 0.2s;
+    }
+    .nav-btn:hover { background: var(--primary-hover); }
+    .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .page-input {
+      width: 60px; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px;
+      background: var(--bg); color: var(--text); text-align: center; font-size: 1rem;
+    }
+    .theme-toggle {
+      background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem;
+      cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px;
+    }
+    .layout { display: flex; min-height: calc(100vh - 60px); }
+    .sidebar {
+      width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
+      padding: 1rem; overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column; gap: 1rem;
+    }
+    .search-box { position: sticky; top: 0; background: var(--sidebar-bg); padding-bottom: 0.5rem; z-index: 10; }
+    .search-box input {
+      width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 6px;
+      background: var(--bg); color: var(--text); font-size: 0.9rem;
+    }
+    .page-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .page-link {
+      padding: 0.5rem 0.75rem; border-radius: 6px; text-decoration: none; color: var(--text);
+      font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.2s; cursor: pointer;
+    }
+    .page-link:hover { background: var(--hover); }
+    .page-link.active { background: var(--active); font-weight: 600; }
+    .page-link.bookmarked::after { content: "🔖"; font-size: 0.9rem; }
+    .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 0.5rem; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+    main { flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+    .page-content {
+      max-width: 1000px; width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+    .page-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+      padding-bottom: 1rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 0.5rem;
+
+}
+    .page-title { font-size: 1.3rem; font-weight: 600; }
+    .bookmark-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.8rem;
+      cursor: pointer; font-size: 1.1rem; transition: all 0.2s;
+    }
+    .bookmark-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .content-container { min-height: 400px; display: flex; flex-direction: column; align-items: center; position: relative; }
+    .image-wrapper {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      background: var(--img-bg);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .content-image {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      cursor: zoom-in;
+      transition: transform 0.2s;
+    }
+    .content-image:hover { transform: scale(1.01); }
+    .content-image.zoomed {
+      cursor: zoom-out;
+      transform: scale(1.5);
+    }
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
+      color: var(--primary);
+      display: none;
+    }
+    .loading-spinner.active { display: block; }
+    .content-text { line-height: 1.8; font-size: 1.05rem; width: 100%; }
+    .content-text p { margin-bottom: 1rem; }
+    .content-placeholder {
+      min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #64748b; text-align: center; padding: 2rem; border: 2px dashed var(--border);
+      border-radius: 8px; width: 100%;
+    }
+    .content-placeholder h3 { margin-bottom: 0.5rem; color: var(--text); }
+    .error-message {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid #dc2626;
+    }
+    .footer-nav {
+      display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem;
+      border-top: 1px solid var(--border); width: 100%; max-width: 1000px; gap: 1rem; flex-wrap: wrap;
+    }
+    .footer-nav button {
+      padding: 0.6rem 1.5rem; background: var(--primary); color: white; border: none;
+      border-radius: 8px; cursor: pointer; font-weight: 500; transition: background 0.2s; flex: 1; min-width: 120px;
+    }
+    .footer-nav button:hover { background: var(--primary-hover); }
+    .footer-nav button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .zoom-hint {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .image-wrapper:hover .zoom-hint { opacity: 1; }
+    max-width: 900px {
+      .layout { flex-direction: column; }
+      .sidebar { width: 100%; max-height: 300px; border-right: none; border-bottom: 1px solid var(--border); }
+      main { padding: 1rem; }
+      .page-content { padding: 1rem; }
+      .content-image.zoomed { transform: scale(2); }
+    }
+    prefers-reduced-motion: reduce { * { transition: none !important; } }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); border: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">📄 Учебный документ</div>
+    <div class="controls">
+      <button class="nav-btn" id="prevBtn" disabled>← Назад</button>
+      <div style="display: flex; align-items: center; gap: 0.3rem;">
+        <label for="pageJump" class="sr-only">Перейти на страницу</label>
+        <input type="number" id="pageJump" class="page-input" min="1" max="134" value="1" aria-label="Номер страницы">
+        <span style="font-size: 0.9rem; opacity: 0.7;">из 134</span>
+      </div>
+      <button class="nav-btn" id="nextBtn">Вперёд →</button>
+      <button class="theme-toggle"
+
+id="themeToggle" aria-label="Переключить тему">🌙</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="search-box">
+        <label for="sidebarSearch" class="sr-only">Поиск по страницам</label>
+        <input type="search" id="sidebarSearch" placeholder="🔍 Найти страницу...">
+      </div>
+      <ul class="page-list" id="pageList" role="list"></ul>
+      <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border);">
+        <small style="opacity: 0.7;">Прогресс:</small>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <small id="progressText" style="opacity: 0.7; display: block; margin-top: 0.3rem;">0 из 134</small>
+      </div>
+    </aside>
+
+    <main>
+      <article class="page-content">
+        <div class="page-header">
+          <h1 class="page-title" id="pageTitle">Страница 1</h1>
+          <button class="bookmark-btn" id="bookmarkBtn" aria-label="Добавить в закладки">☆</button>
+        </div>
+        <div id="pageContent" class="content-container">
+          <div class="loading-spinner active">⏳ Загрузка...</div>
+        </div>
+      </article>
+
+      <nav class="footer-nav">
+        <button id="prevBtn2" disabled>← Предыдущая</button>
+        <button id="nextBtn2">Следующая →</button>
+      </nav>
+    </main>
+  </div>
+
+  <script>
+    // ================= CONFIG =================
+    const TOTAL_PAGES = 134;
+    const BASE_URL = 'https://www.nikche.ru/doc/img/';
+    const IMAGE_FORMAT = 'png'; // Изменил на png, так как ваша ссылка на .png
+
+    // ================= STATE =================
+    let currentPage = 1;
+    let bookmarks = JSON.parse(localStorage.getItem('docBookmarks') || '[]');
+    let theme = localStorage.getItem('docTheme') || 'light';
+    let loadedImages = {}; // Кэш загруженных изображений
+
+    // ================= DOM =================
+    const pageList = document.getElementById('pageList');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageContent = document.getElementById('pageContent');
+    const pageJump = document.getElementById('pageJump');
+    const prevBtns = [document.getElementById('prevBtn'), document.getElementById('prevBtn2')];
+    const nextBtns = [document.getElementById('nextBtn'), document.getElementById('nextBtn2')];
+    const bookmarkBtn = document.getElementById('bookmarkBtn');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const sidebarSearch = document.getElementById('sidebarSearch');
+    const themeToggle = document.getElementById('themeToggle');
+
+    // ================= THEME =================
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeToggle.textContent = '☀️';
+    }
+
+    // ================= RENDER LIST =================
+    function renderPageList(filter = '') {
+      pageList.innerHTML = '';
+      for (let i = 1; i <= TOTAL_PAGES; i++) {
+        const pageText = `Страница ${i}`;
+        if (filter && !pageText.toLowerCase().includes(filter.toLowerCase())) continue;
+
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = '#';
+        link.className = `page-link ${i === currentPage ? 'active' : ''} ${bookmarks.includes(i) ? 'bookmarked' : ''}`;
+        link.textContent = pageText;
+        link.dataset.page = i;
+        link.addEventListener('click', (e) => { e.preventDefault(); goToPage(i); });
+        li.appendChild(link);
+        pageList.appendChild(li);
+      }
+    }
+
+    // ================= LOAD IMAGE =================
+    function loadImage(num) {
+      return new Promise((resolve, reject) => {
+        const imgUrl = `${BASE_URL}${num}.${IMAGE_FORMAT}`;
+        const img = new Image();
+
+        img.onload = () => {
+          loadedImages[num] = img;
+          resolve(img);
+        };
+
+        img.onerror = () => {
+reject(new Error(`Не удалось загрузить страницу ${num}`));
+        };
+
+        img.src = imgUrl;
+        // Таймаут на случай если изображение не загрузится
+        setTimeout(() => {
+          if (!loadedImages[num]) {
+            reject(new Error('Превышено время ожидания загрузки'));
+          }
+        }, 10000);
+      });
+    }
+
+    function createImageElement(img, pageNum) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'image-wrapper';
+
+      const imgEl = document.createElement('img');
+      imgEl.src = img.src;
+      imgEl.alt = `Страница ${pageNum}`;
+      imgEl.className = 'content-image';
+      imgEl.loading = 'lazy';
+
+      // Зум по клику
+      imgEl.addEventListener('click', () => {
+        imgEl.classList.toggle('zoomed');
+      });
+
+      const hint = document.createElement('div');
+      hint.className = 'zoom-hint';
+      hint.textContent = '🔍 Кликните для зума';
+
+      wrapper.appendChild(imgEl);
+      wrapper.appendChild(hint);
+
+      return wrapper;
+    }
+
+    function createErrorElement(pageNum, error) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'content-placeholder';
+      placeholder.innerHTML = `
+        <h3>⚠️ Ошибка загрузки</h3>
+        <p>Не удалось загрузить страницу <strong>${pageNum}</strong></p>
+        <div class="error-message">${error.message}</div>
+        <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+          Возможно, изображение недоступно или сайт nikche.ru блокирует прямые ссылки.
+        </p>
+      `;
+      return placeholder;
+    }
+
+    function goToPage(num) {
+      if (num < 1 || num > TOTAL_PAGES) return;
+      currentPage = num;
+
+      pageTitle.textContent = `Страница ${num}`;
+      pageJump.value = num;
+
+      // Показываем спиннер загрузки
+      pageContent.innerHTML = '<div class="loading-spinner active">⏳ Загрузка страницы...</div>';
+
+      // Пытаемся загрузить изображение
+      if (loadedImages[num]) {
+        // Уже загружено в кэш
+        pageContent.innerHTML = '';
+        pageContent.appendChild(createImageElement(loadedImages[num], num));
+      } else {
+        // Загружаем новое
+        loadImage(num)
+          .then(img => {
+            pageContent.innerHTML = '';
+            pageContent.appendChild(createImageElement(img, num));
+          })
+          .catch(error => {
+            pageContent.innerHTML = '';
+            pageContent.appendChild(createErrorElement(num, error));
+          });
+      }
+
+      // Обновляем активные элементы
+      document.querySelectorAll('.page-link').forEach(el => {
+        el.classList.toggle('active', parseInt(el.dataset.page) === num);
+      });
+
+      prevBtns.forEach(btn => btn && (btn.disabled = num === 1));
+      nextBtns.forEach(btn => btn && (btn.disabled = num === TOTAL_PAGES));
+
+      updateBookmarkBtn();
+
+      const progress = (num / TOTAL_PAGES) * 100;
+      progressFill.style.width = `${progress}%`;
+      progressText.textContent = `${num} из ${TOTAL_PAGES}`;
+
+      localStorage.setItem('docLastPage', num);
+      document.querySelector('main')?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ================= BOOKMARKS =================
+    function updateBookmarkBtn() {
+      const isBookmarked = bookmarks.includes(currentPage);
+      bookmarkBtn.classList.toggle('active', isBookmarked);
+      bookmarkBtn.textContent = isBookmarked ? '🔖' : '☆';
+      bookmarkBtn.setAttribute('aria-label', isBookmarked ? 'Убрать из закладок' : 'Добавить в закладки');
+    }
+
+    function toggleBookmark() {
+      const idx = bookmarks.indexOf(currentPage);
+      if (idx === -1) bookmarks.push(currentPage);
+      else bookmarks.splice(idx, 1);
+      localStorage.setItem('docBookmarks', JSON.stringify(bookmarks));
+      updateBookmarkBtn();
+      renderPageList(sidebarSearch.value);
+    }
+
+    // ================= EVENTS =================
+    sidebarSearch.addEventListener('input', (e) => renderPageList(e.target.value))
+
+themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('docTheme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('docTheme', 'dark');
+      }
+    });
+
+    prevBtns.forEach(btn => btn?.addEventListener('click', () => goToPage(currentPage - 1)));
+    nextBtns.forEach(btn => btn?.addEventListener('click', () => goToPage(currentPage + 1)));
+
+    pageJump.addEventListener('change', (e) => {
+      const num = parseInt(e.target.value);
+      if (num >= 1 && num <= TOTAL_PAGES) goToPage(num);
+      else e.target.value = currentPage;
+    });
+    pageJump.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const num = parseInt(e.target.value);
+        if (num >= 1 && num <= TOTAL_PAGES) goToPage(num);
+      }
+    });
+
+    bookmarkBtn.addEventListener('click', toggleBookmark);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowLeft') goToPage(currentPage - 1);
+      if (e.key === 'ArrowRight') goToPage(currentPage + 1);
+      if (e.key === 'b' || e.key === 'B') toggleBookmark();
+    });
+
+    // ================= PRELOAD =================
+    // Предзагрузка следующей страницы для скорости
+    function preloadNextPage() {
+      if (currentPage < TOTAL_PAGES) {
+        loadImage(currentPage + 1).catch(() => {});
+      }
+    }
+
+    // ================= INIT =================
+    function init() {
+      const savedPage = parseInt(localStorage.getItem('docLastPage') || '1');
+      renderPageList();
+      goToPage(savedPage);
+
+      // Предзагружаем следующую страницу после загрузки текущей
+      setTimeout(preloadNextPage, 2000);
+    }
+    init();
+  </script>
+</body>
+</html>
+
